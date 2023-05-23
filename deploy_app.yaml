@@ -1,0 +1,9 @@
+---
+- name: Deploy Kubernetes app
+  hosts: all
+  become: true
+  gather_facts: falst
+  tasks:
+    - name: Correr Docker
+      docker:
+        run: 

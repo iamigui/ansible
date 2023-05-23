@@ -1,0 +1,61 @@
+---
+- name: Instalar Minikube y kubectl en Ubuntu
+  hosts: all
+  become: true
+  tasks:
+    - name: Actualizar repositorios y paquetes
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Instalar paquetes de dependencias
+      apt:
+        name: ['apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common']
+
+    - name: Agregar clave GPG para el repositorio de Kubernetes
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Agregar repositorio de Kubernetes
+      apt_repository:
+        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+
+    - name: Actualizar repositorios después de agregar el repositorio de Kubernetes
+      apt:
+        update_cache: yes
+
+    - name: Instalar kubectl
+      apt:
+        name: kubectl
+        state: present
+
+    - name: Installing Docker
+      apt:
+        name: docker
+        state: present
+    - name: Installing conntrack
+      apt:
+        name: conntrack
+        state: present
+
+    - name: Downloading minikube
+      get_url:
+          url: https://storage.googleapis.com/minikube/releases/latest/minikube-latest.x86_64.rpm
+          dest: /root/minikube-latest.x86_64.rpm
+          
+    - name: Descargar e instalar Minikube
+      shell: |
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        sudo install minikube-linux-amd64 /usr/local/bin/minikube
+        rm minikube-linux-amd64
+
+    - name: Verificar la instalación de Minikube
+      command: minikube version
+      register: minikube_version
+
+    - name: Mostrar la versión de Minikube instalada
+      debug:
+        var: minikube_version.stdout
+
